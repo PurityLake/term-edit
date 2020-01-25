@@ -13,10 +13,10 @@ int main(int argc, char **argv) {
 
     char ch;
 
-	initscr();			// Start curses mode 		
-	raw();				// Line buffering disabled	
-	keypad(stdscr, TRUE);		// We get F1, F2 etc..		
-	noecho();			// Don't echo() while we do getch 
+    initscr();
+    raw();
+    keypad(stdscr, TRUE);
+    noecho();			 
 
     int row, col;
     getmaxyx(stdscr, row, col);
@@ -42,41 +42,11 @@ int main(int argc, char **argv) {
         }
     }
     
-	endwin();			// End curses mode		  
+    endwin();			// End curses mode		  
     
     free_line_list(list);
 
-/*
-    int ch;
-
-	initscr();			// Start curses mode 		
-	raw();				// Line buffering disabled	
-	keypad(stdscr, TRUE);		// We get F1, F2 etc..		
-	noecho();			// Don't echo() while we do getch 
-
-    int row, col;
-    getmaxyx(stdscr, row, col);
-
-    print_border(row, col);
-
-    printw("1. ");
-    int x, y;
-    getyx(stdscr, y, x);
-    int curLine = 1;
-
-    while ((ch = getch()) != 27) {
-        if (ch == '\n') {
-            ++y;
-            move(y, 1);
-            printw("%d. ", y);
-        } else {
-            printw("%c", ch);
-        }
-    }
-    
-	endwin();			// End curses mode		  
-*/
-	return 0;
+    return 0;
 }
 
 void print_border(int row, int col) {
