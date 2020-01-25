@@ -1,4 +1,6 @@
 term-edit
+infer-out
+.DS_Store
 
 # Prerequisites
 *.d

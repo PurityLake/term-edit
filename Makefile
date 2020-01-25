@@ -6,3 +6,7 @@ LIBS=-lncurses
 
 all:
 	gcc $(CFLAGS) $(INCLUDE) -o $(EXECUTABLE) main.c $(LIBS)
+
+.PHONY: clean
+clean:
+	rm -f $(EXECUTABLE)

@@ -14,10 +14,6 @@ inline int min(int a, int b) {
 }
 
 int main(int argc, char **argv) {
-    line_list *list = create_line_list();
-    add_to_end_of_list(list, create_line(1, 0, 32));
-    line_list *curr = list;
-
     int ch;
 
     initscr();
@@ -31,9 +27,12 @@ int main(int argc, char **argv) {
         init_pair(LINE_NO_PAIR, COLOR_YELLOW, COLOR_BLACK);
     } else {
         endwin();
-        free_line_list(list);
         return EXIT_FAILURE;
     } 
+
+    line_list *list = create_line_list();
+    add_to_end_of_list(list, create_line(1, 0, 32));
+    line_list *curr = list;
 
     int row, col;
     getmaxyx(stdscr, row, col);

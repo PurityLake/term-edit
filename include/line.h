@@ -16,10 +16,19 @@ typedef struct line_list {
 
 line *create_line(int lineNo, int length, int capacity) {
     line *ret = (line *)malloc(sizeof(line));
-    ret->lineNo = lineNo;
-    ret->length = length;
-    ret->capacity = capacity;
-    ret->value = (char *)malloc(capacity);
+    if (ret != NULL) {
+        ret->lineNo = lineNo;
+        ret->length = length;
+        ret->capacity = capacity;
+        ret->value = (char *)malloc(capacity);
+        if (ret->value == NULL) {
+            fprintf(stderr, "Unable to allocate %d bytes of memory\n", capacity);
+            exit(EXIT_FAILURE);
+        }
+    } else {
+        fprintf(stderr, "Unable to allocate %d bytes of memory\n", sizeof(line));
+        exit(EXIT_FAILURE);
+    }
     return ret;
 }
 
@@ -31,9 +40,14 @@ void free_line(line *val) {
 
 line_list *create_line_list() {
     line_list *list = (line_list *)malloc(sizeof(line_list));
-    list->value = NULL;
-    list->prev = NULL;
-    list->next = NULL;
+    if (list != NULL) {
+        list->value = NULL;
+        list->prev = NULL;
+        list->next = NULL;
+    } else {
+        fprintf(stderr, "Unable to allocate %d bytes of memory.", sizeof(line_list));
+        exit(EXIT_FAILURE);
+    }
     return list;
 }
 
