@@ -9,9 +9,7 @@
 void print_border(int row, int col);
 void print_screen(int row, int col, int x, int y, int minx, line_list *list);
 
-int min(int a, int b) { 
-    return (a < b) ? a : b;
-}
+int min(int a, int b);
 
 int main(int argc, char **argv) {
     int ch;
@@ -141,4 +139,8 @@ void print_screen(int row, int col, int x, int y, int minx, line_list *list) {
     attroff(COLOR_PAIR(LINE_NO_PAIR));
     printw("%s", curr->value->value);
     move(y, x);
+}
+
+int min(int a, int b) { 
+    return (a < b) ? a : b;
 }
