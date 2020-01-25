@@ -9,7 +9,7 @@
 void print_border(int row, int col);
 void print_screen(int row, int col, int x, int y, line_list *list);
 
-int min(int a, int b) { 
+inline int min(int a, int b) { 
     return (a < b) ? a : b;
 }
 
