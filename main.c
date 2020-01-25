@@ -7,9 +7,9 @@
 #define LINE_NO_PAIR 2
 
 void print_border(int row, int col);
-void print_screen(int row, int col, int x, int y, line_list *list);
+void print_screen(int row, int col, int x, int y, int minx, line_list *list);
 
-inline int min(int a, int b) { 
+int min(int a, int b) { 
     return (a < b) ? a : b;
 }
 
@@ -44,30 +44,47 @@ int main(int argc, char **argv) {
     attroff(COLOR_PAIR(LINE_NO_PAIR));
 
     int x, y;
+    int minx = 3;
     getyx(stdscr, y, x);
-    //int curLine = 1;
+    int currLines = 1;
 
     while ((ch = getch()) != 27) {
         if (ch == '\n') {
             ++y;
-            move(y, 1);
-            attron(COLOR_PAIR(LINE_NO_PAIR));
-            printw("%d. ", y);
-            attroff(COLOR_PAIR(LINE_NO_PAIR));
             add_to_end_of_list(list, create_line(y, 0, 32));
             curr = curr->next;
-            print_screen(row, col, x, y, list);
+            ++currLines;
+            int temp = currLines;
+            minx = 2;
+            do {
+                temp /= 10;
+                ++minx;
+            } while(temp > 0);
+            x = minx;
+            print_screen(row, col, x + 1, y, minx, list);
         } else if (ch == KEY_UP) {
             if (y > 1) {
                 --y;
                 curr = curr->prev;
-                x = strlen(curr->value->value) + 4;
+                x = min(x, curr->value->length + minx);
+                move(y, x);
+            }
+        } else if (ch == KEY_DOWN) {
+            if (y < row - 2 && y < currLines) {
+                ++y;
+                curr = curr->next;
+                x = min(x, curr->value->length + minx);
                 move(y, x);
             }
         } else {
             char c = (char)ch;
             strncat(curr->value->value, &c, 1);
             printw("%c", ch);
+            ++curr->value->length;
+            ++x;
+            if (curr->value->length >= curr->value->capacity) {
+                resize_line_value(curr->value);
+            }
         }
     }
     
@@ -96,17 +113,28 @@ void print_border(int row, int col) {
     move(1, 1);
 }
 
-void print_screen(int row, int col, int x, int y, line_list *list) {
+void print_screen(int row, int col, int x, int y, int minx, line_list *list) {
     clear();
     print_border(row, col);
     line_list *curr = list;
-    while (curr->next != NULL) {
-        attron(COLOR_PAIR(LINE_NO_PAIR));
-        printw("%d. ", curr->value->lineNo);
-        attroff(COLOR_PAIR(LINE_NO_PAIR));
-        printw("%s", curr->value->value);
-        move(curr->value->lineNo + 1, 1);
-        curr = curr->next;
+    char *buf = (char *)malloc(minx);
+    if (buf != NULL) {
+        while (curr->next != NULL) {
+            attron(COLOR_PAIR(LINE_NO_PAIR));
+            printw("%d.", curr->value->lineNo);
+            memset(buf, '\0', minx);
+            int n = sprintf(buf, "%d.", curr->value->lineNo);
+            for (int i = 0; i < minx - n; ++i) {
+                printw(" ");
+            }
+            attroff(COLOR_PAIR(LINE_NO_PAIR));
+            printw("%s", curr->value->value);
+            move(curr->value->lineNo + 1, 1);
+            curr = curr->next;
+        }
+    } else {
+        endwin();
+        fprintf(stderr, "Failed to allocate %d bytes of memory", minx);
     }
     attron(COLOR_PAIR(LINE_NO_PAIR));
     printw("%d. ", curr->value->lineNo);
