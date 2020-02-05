@@ -2,6 +2,7 @@
 #define __H_LINE__
 
 #include <stdlib.h>
+#include <ncurses.h>
 
 typedef struct {
     int lineNo;
@@ -39,9 +40,24 @@ void resize_line_value(line *line) {
         memset(line->value + line->length, '\0', line->capacity - line->length);
     } else {
         fprintf(stderr, "Failed to reallocate %d bytes of memory", line->capacity * 2);
+        endwin();
         exit(EXIT_FAILURE);
+    } 
+}
+
+void add_to_line(line *line, char val, int i) {
+    if (line->length + 1 >= line->capacity) {
+        resize_line_value(line);
     }
-    
+    if (i < line->length) {
+        char *cpystuff = (char *)malloc(line->length - i);
+        strncpy(cpystuff, line->value + i, line->length - i);
+        line->value[i] = val;
+        strncpy(line->value + i + 1, cpystuff, line->length - i);
+    } else {
+        line->value[i] = val;
+    }
+    ++line->length;
 }
 
 void free_line(line *val) {
@@ -58,7 +74,7 @@ line_list *create_line_list() {
         list->next = NULL;
     } else {
         fprintf(stderr, "Unable to allocate %lu bytes of memory.", sizeof(line_list));
-        exit(EXIT_FAILURE);
+        return NULL;
     }
     return list;
 }
@@ -75,12 +91,12 @@ void add_to_end_of_list(line_list *list, line *val) {
     }
 }
 
-void add_to_index_of_list(line_list *list, line *value, int idx) {
+int add_to_index_of_list(line_list *list, line *value, int idx) {
     line_list *curr = list;
     for (int i = 0; i < idx; ++i) {
         if (curr->next == NULL) {
             fprintf(stderr, "There is not %d lines in this file\n", idx + 1);
-            exit(EXIT_FAILURE);
+            return 0;
         }
         curr = curr->next;
     }
@@ -96,6 +112,7 @@ void add_to_index_of_list(line_list *list, line *value, int idx) {
         curr = curr->next;
     }
     ++curr->value->lineNo;
+    return 1;
 }
 
 void free_line_list(line_list *val) {

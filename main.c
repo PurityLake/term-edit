@@ -11,6 +11,8 @@ void print_screen(int row, int col, int x, int y, int minx, line_list *list);
 
 int min(int a, int b);
 
+int get_length_of_lineno(int max_line_no);
+
 int main(int argc, char **argv) {
     int ch;
 
@@ -49,17 +51,17 @@ int main(int argc, char **argv) {
     while ((ch = getch()) != 27) {
         if (ch == '\n') {
             ++y;
-            add_to_end_of_list(list, create_line(y, 0, 32));
-            curr = curr->next;
             ++currLines;
-            int temp = currLines;
-            minx = 2;
-            do {
-                temp /= 10;
-                ++minx;
-            } while(temp > 0);
-            x = minx;
-            print_screen(row, col, x + 1, y, minx, list);
+            if (y < currLines) {
+                if (!add_to_index_of_list(list, create_line(y - 1, 0, 32), y - 1)) {
+                    break;
+                }
+            } else {
+                add_to_end_of_list(list, create_line(y, 0, 32));
+            }
+            curr = curr->next;
+            x = get_length_of_lineno(currLines);
+            print_screen(row, col, x, y, minx, list);
         } else if (ch == KEY_UP) {
             if (y > 1) {
                 --y;
@@ -76,13 +78,9 @@ int main(int argc, char **argv) {
             }
         } else {
             char c = (char)ch;
-            strncat(curr->value->value, &c, 1);
-            printw("%c", ch);
-            ++curr->value->length;
+            add_to_line(curr->value, c, x - minx - 1);
             ++x;
-            if (curr->value->length >= curr->value->capacity) {
-                resize_line_value(curr->value);
-            }
+            print_screen(row, col, x, y, minx, list);
         }
     }
     
@@ -134,6 +132,7 @@ void print_screen(int row, int col, int x, int y, int minx, line_list *list) {
         endwin();
         fprintf(stderr, "Failed to allocate %d bytes of memory", minx);
     }
+    free(buf);
     attron(COLOR_PAIR(LINE_NO_PAIR));
     printw("%d. ", curr->value->lineNo);
     attroff(COLOR_PAIR(LINE_NO_PAIR));
@@ -143,4 +142,13 @@ void print_screen(int row, int col, int x, int y, int minx, line_list *list) {
 
 int min(int a, int b) { 
     return (a < b) ? a : b;
+}
+
+int get_length_of_lineno(int max_line_no) {
+    int minx = 3;
+    do {
+        max_line_no /= 10;
+        ++minx;
+    } while(max_line_no > 0);
+    return minx;
 }

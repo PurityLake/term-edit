@@ -10,3 +10,4 @@ all:
 .PHONY: clean
 clean:
 	rm -f $(EXECUTABLE)
+	rm -rf infer-out
